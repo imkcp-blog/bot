@@ -5,3 +5,4 @@ class Config:
     ADMIN_IDS = [1910124860]  # 管理员ID列表
     WELCOME_MSG = "👋 欢迎新人！请阅读群规～"
     LOG_CHANNEL = -1001951108383  # 日志频道ID
+    LOG_FILE = "logs/bot.log"   # 本地日志路径
