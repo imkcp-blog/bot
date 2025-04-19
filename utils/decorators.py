@@ -3,6 +3,8 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from config import Config
 from telegram.error import BadRequest
+from utils.helpers import send_log
+
 
 def admin_required(func):
     """

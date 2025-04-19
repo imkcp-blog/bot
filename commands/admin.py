@@ -62,6 +62,10 @@ async def unban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(f"❌ 解封失败: {str(e)}")
 
+async def admin_panel(update: Update, context):
+    await update.message.reply_text("👮‍ 管理员控制面板功能开发中…")
+
+
 admin_handler = CommandHandler("admin", admin_panel)
 ban_handler = CommandHandler("ban", ban_user)
 unban_handler = CommandHandler("unban", unban_user)

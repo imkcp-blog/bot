@@ -15,9 +15,12 @@ def register_handlers(application):
     # 注册信息命令
     application.add_handler(info.info_handler)
 
+
+
 if __name__ == "__main__":
     # 初始化应用
-    app = ApplicationBuilder().token(Config.BOT_TOKEN).build()
+    application = Application.builder().token(Config.BOT_TOKEN).build()
+    application.add_handler(start_handler)
     
     # 注册处理器
     register_handlers(app)
