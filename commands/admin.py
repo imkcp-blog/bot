@@ -1,9 +1,12 @@
 from telegram import Update
-from telegram.ext import CommandHandler, ContextTypes
+from telegram.ext import CommandHandler, MessageHandler, ContextTypes, filters
 from config import Config
 from utils.decorators import admin_required
-from utils.helpers import get_user_info, send_log
+from utils.helpers import get_user_info, send_log, sign_in, get_leaderboard, get_user_points
 from datetime import datetime, timedelta
+
+# 假设你有一个用户积分的数据结构
+user_points = {}
 
 @admin_required
 async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -32,7 +35,6 @@ async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"⏰ 时长: 1天",
             parse_mode='HTML'  # 传递 HTML 格式
         )
-
     except Exception as e:
         await update.message.reply_text(f"❌ 封禁失败: {str(e)}")
 
@@ -63,15 +65,9 @@ async def unban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"❌ 解封失败: {str(e)}")
 
 
-async def admin_panel(update: Update, context):
+async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """管理员控制面板"""
     await update.message.reply_text("👮‍ 管理员控制面板功能开发中…")
-
-
-# 定义命令处理器
-admin_handler = CommandHandler("admin", admin_panel)
-ban_handler = CommandHandler("ban", ban_user)
-unban_handler = CommandHandler("unban", unban_user)
 
 
 @admin_required
@@ -104,7 +100,32 @@ async def check_points(update: Update, context: ContextTypes.DEFAULT_TYPE):
     points = get_user_points(user_id)
     await update.message.reply_text(f"你当前有 {points} 积分。")
 
+# 监听消息，给用户增加积分
+async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """处理用户发来的消息"""
+    user_id = update.effective_user.id
+    message = update.message.text.lower()
+
+    # 如果消息中包含 "签到"，执行签到
+    if "签到" in message:
+        await sign_in_user(update, context)
+    else:
+        # 其他消息增加积分
+        add_message_points(user_id)
+        await update.message.reply_text(f"当前积分：{get_user_points(user_id)}")
+
 # 定义命令处理器
 sign_in_handler = CommandHandler("签到", sign_in_user)
 list_handler = CommandHandler("list", list_points)
 check_points_handler = CommandHandler("积分", check_points)
+
+# 监听所有非命令的文本消息
+message_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler)
+
+# 注册所有处理器
+handlers = [
+    sign_in_handler,
+    list_handler,
+    check_points_handler,
+    message_handler
+]
